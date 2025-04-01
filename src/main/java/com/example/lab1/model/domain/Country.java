@@ -1,4 +1,4 @@
-package com.example.lab1.model;
+package com.example.lab1.model.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

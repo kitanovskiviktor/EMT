@@ -1,4 +1,4 @@
-package com.example.lab1.model;
+package com.example.lab1.model.domain;
 
 
 public enum Category {

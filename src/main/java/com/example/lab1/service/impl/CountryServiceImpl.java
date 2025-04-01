@@ -1,6 +1,7 @@
 package com.example.lab1.service.impl;
 
-import com.example.lab1.model.Country;
+import com.example.lab1.model.domain.Country;
+import com.example.lab1.model.dto.CountryDto;
 import com.example.lab1.repository.CountryRepository;
 import com.example.lab1.service.CountryService;
 import org.springframework.stereotype.Service;
@@ -18,35 +19,42 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public List<Country> findAll() {
+    public List<Country> getAllCountries() {
         return countryRepository.findAll();
     }
 
     @Override
-    public Optional<Country> save(Country country) {
-        return Optional.of(countryRepository.save(country));
+    public Country getCountryById(Long country) {
+        return countryRepository.findById(country).orElse(null);
     }
 
     @Override
-    public Optional<Country> findById(Long id) {
-        return countryRepository.findById(id);
+    public Country save(CountryDto country) {
+        Country newCountry = new Country();
+
+        newCountry.setName(country.getName());
+        newCountry.setContinent(country.getContinent());
+
+        return countryRepository.save(newCountry);
     }
 
     @Override
-    public Optional<Country> update(Long id, Country country) {
-        return countryRepository.findById(id).map(existingCountry -> {
-            if (country.getName() != null) {
-                existingCountry.setName(country.getName());
-            }
-            if (country.getContinent() != null) {
-                existingCountry.setContinent(country.getContinent());
-            }
-            return countryRepository.save(existingCountry);
-        });
+    public Country update(Long id, CountryDto country) {
+        Country newCountry = countryRepository.findById(id).orElse(null);
+
+        if (newCountry == null) {
+            return null;
+        }
+
+        newCountry.setName(country.getName());
+        newCountry.setContinent(country.getContinent());
+
+        return countryRepository.save(newCountry);
     }
 
+
     @Override
-    public void deleteById(Long id) {
+    public void deleteCountry(Long id) {
         countryRepository.deleteById(id);
     }
 }

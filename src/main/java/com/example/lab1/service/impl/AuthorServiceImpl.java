@@ -1,10 +1,11 @@
 package com.example.lab1.service.impl;
 
-import com.example.lab1.model.Author;
+import com.example.lab1.model.domain.Author;
+import com.example.lab1.model.domain.Country;
 import com.example.lab1.model.dto.AuthorDto;
 import com.example.lab1.repository.AuthorRepository;
+import com.example.lab1.repository.CountryRepository;
 import com.example.lab1.service.AuthorService;
-import com.example.lab1.service.CountryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,53 +15,57 @@ import java.util.Optional;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
-    private final CountryService countryService;
+    private final CountryRepository countryRepository;
 
-    public AuthorServiceImpl(AuthorRepository authorRepository, CountryService countryService) {
+    public AuthorServiceImpl(AuthorRepository authorRepository, CountryRepository countryRepository) {
         this.authorRepository = authorRepository;
-        this.countryService = countryService;
+        this.countryRepository = countryRepository;
     }
 
+
     @Override
-    public List<Author> findAll() {
+    public List<Author> getAllAuthors() {
         return authorRepository.findAll();
     }
 
     @Override
-    public Optional<Author> save(AuthorDto author) {
-        if (author.getCountryId() != null &&
-                countryService.findById(author.getCountryId()).isPresent()) {
-            return Optional.of(
-                    authorRepository.save(new Author(author.getName(), author.getSurname(),
-                            countryService.findById(author.getCountryId()).get())));
+    public Author getAuthorById(Long id) {
+        return authorRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Author save(AuthorDto author) {
+        Author a = new Author();
+        return saveAuthor(author, a);
+    }
+
+    @Override
+    public Author update(Long id, AuthorDto author) {
+        Author a = authorRepository.findById(id).orElse(null);
+
+        if (a == null) {
+            return null;
         }
-        return Optional.empty();
+
+        return saveAuthor(author, a);
     }
 
     @Override
-    public Optional<Author> findById(Long id) {
-        return authorRepository.findById(id);
-    }
-
-    @Override
-    public Optional<Author> update(Long id, AuthorDto author) {
-        return authorRepository.findById(id)
-                .map(existingAuthor -> {
-                    if (author.getName() != null) {
-                        existingAuthor.setName(author.getName());
-                    }
-                    if (author.getSurname() != null) {
-                        existingAuthor.setSurname(author.getSurname());
-                    }
-                    if (author.getCountryId() != null && countryService.findById(author.getCountryId()).isPresent()) {
-                        existingAuthor.setCountry(countryService.findById(author.getCountryId()).get());
-                    }
-                    return authorRepository.save(existingAuthor);
-                });
-    }
-
-    @Override
-    public void deleteById(Long id) {
+    public void deleteAuthor(Long id) {
         authorRepository.deleteById(id);
+    }
+
+    private Author saveAuthor(AuthorDto author, Author a) {
+        Country c = countryRepository.findById(author.getCountryId()).orElse(null);
+
+        if (c == null) {
+            return null;
+        }
+
+        a.setName(author.getName());
+        a.setSurname(author.getSurname());
+        a.setCountry(c);
+
+        return authorRepository.save(a);
     }
 }

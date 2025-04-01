@@ -1,23 +1,32 @@
 package com.example.lab1.service;
 
 
-import com.example.lab1.model.Book;
+import com.example.lab1.model.domain.Book;
 import com.example.lab1.model.dto.BookDto;
+import com.example.lab1.model.dto.CreateBookDto;
+import com.example.lab1.model.dto.UpdateBookDto;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
 public interface BookService {
-    List<Book> findAll();
+    List<Book> getAllBooks();
 
-    Optional<Book> save(BookDto book);
+    Book getBookById(Long id);
 
-    Optional<Book> findById(Long id);
+    Book save(CreateBookDto bookDto);
 
-    Optional<Book> update(Long id, BookDto book);
+    Book update(Long id, UpdateBookDto bookDto);
 
-    void deleteById(Long id);
+    void deleteBook(Long id);
 
-    Optional<Book> rentBook(Long id);
+    void markBookAsTaken(Long id);
+
+    List<Book> getAllBooksByPage(Pageable pageable);
+
+    List<Book> getBooksByAvailableCopies(int minCopies);
+
+    List<Book> getBooksSortedByAuthor();
 
 }

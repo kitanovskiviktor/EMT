@@ -1,18 +1,19 @@
 package com.example.lab1.service;
 
-import com.example.lab1.model.Country;
+import com.example.lab1.model.domain.Country;
+import com.example.lab1.model.dto.CountryDto;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CountryService {
-    List<Country> findAll();
+    List<Country> getAllCountries();
 
-    Optional<Country> save(Country country);
+    Country getCountryById(Long country);
 
-    Optional<Country> findById(Long id);
+    Country save(CountryDto country);
 
-    Optional<Country> update(Long id, Country country);
+    Country update(Long id, CountryDto country);
 
-    void deleteById(Long id);
+    void deleteCountry(Long id);
 }
