@@ -1,15 +1,20 @@
 package com.example.lab1.service.impl;
 
+import com.example.lab1.events.AuthorChangedEvent;
 import com.example.lab1.model.domain.Author;
+import com.example.lab1.model.domain.AuthorsByCountry;
 import com.example.lab1.model.domain.Country;
 import com.example.lab1.model.dto.AuthorDto;
+import com.example.lab1.projection.AuthorNameProjection;
 import com.example.lab1.repository.AuthorRepository;
 import com.example.lab1.repository.CountryRepository;
 import com.example.lab1.service.AuthorService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -17,9 +22,12 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
     private final CountryRepository countryRepository;
 
-    public AuthorServiceImpl(AuthorRepository authorRepository, CountryRepository countryRepository) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public AuthorServiceImpl(AuthorRepository authorRepository, CountryRepository countryRepository, ApplicationEventPublisher eventPublisher) {
         this.authorRepository = authorRepository;
         this.countryRepository = countryRepository;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -36,6 +44,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author save(AuthorDto author) {
         Author a = new Author();
+        eventPublisher.publishEvent(new AuthorChangedEvent(this));
         return saveAuthor(author, a);
     }
 
@@ -47,11 +56,14 @@ public class AuthorServiceImpl implements AuthorService {
             return null;
         }
 
+        eventPublisher.publishEvent(new AuthorChangedEvent(this));
+
         return saveAuthor(author, a);
     }
 
     @Override
     public void deleteAuthor(Long id) {
+        eventPublisher.publishEvent(new AuthorChangedEvent(this));
         authorRepository.deleteById(id);
     }
 
@@ -66,6 +78,23 @@ public class AuthorServiceImpl implements AuthorService {
         a.setSurname(author.getSurname());
         a.setCountry(c);
 
+        eventPublisher.publishEvent(new AuthorChangedEvent(this));
+
         return authorRepository.save(a);
+    }
+
+    public List<AuthorsByCountry> getAuthorsByCountry() {
+        return authorRepository.fetchAuthorsByCountry().stream().map(row ->
+                new AuthorsByCountry(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        ((Number) row[2]).longValue()
+                )
+        ).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AuthorNameProjection> findAllBy() {
+        return this.authorRepository.findAllBy();
     }
 }

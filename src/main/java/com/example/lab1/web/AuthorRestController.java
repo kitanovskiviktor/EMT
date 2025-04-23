@@ -2,7 +2,9 @@ package com.example.lab1.web;
 
 
 import com.example.lab1.model.domain.Author;
+import com.example.lab1.model.domain.AuthorsByCountry;
 import com.example.lab1.model.dto.AuthorDto;
+import com.example.lab1.projection.AuthorNameProjection;
 import com.example.lab1.service.AuthorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,5 +56,15 @@ public class AuthorRestController {
     public ResponseEntity<Void> deleteAuthor(@PathVariable Long id) {
         authorService.deleteAuthor(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-country")
+    public List<AuthorsByCountry> getAuthorsByCountry() {
+        return authorService.getAuthorsByCountry();
+    }
+
+    @GetMapping("/names")
+    public List<AuthorNameProjection> getAuthorNames() {
+        return authorService.findAllBy();
     }
 }
